@@ -11,10 +11,10 @@
 ## 功能
 ### 初始化
 ```
-# 使用免註冊調用
-dm = DM(DmRegPath="path_to_dmreg.dll", DMPath="path_to_dm.dll")
-# 使用註冊方式調用
+# 已在系統註冊大漠調用
 dm = DM()
+# 使用免註冊調用 只需要在第一次調用一次即可 其餘的可直接使用 dm=DM()
+dm = DM(DmRegPath="path_to_dmreg.dll", DMPath="path_to_dm.dll")
 ```
 ## 使用範例
 1. 註冊
