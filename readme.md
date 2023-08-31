@@ -16,32 +16,39 @@ dm = DM()
 # 使用免註冊調用 只需要在第一次調用一次即可 其餘的可直接使用 dm=DM()
 dm = DM(DmRegPath="path_to_dmreg.dll", DMPath="path_to_dm.dll")
 ```
+### 導入
+```from pydmsoft import DM```
 ## 使用範例
 1. 註冊
    ```
+   dm = DM()
    result = dm.Reg(code, Ver)
    print(result)
    ```
 
 2. OCR 辨識
     ```
+    dm = DM()
     result = dm.Ocr(0, 0, 100, 100, "ffffff-000000", 0.9)
     print(result)
     ```
 
 3. 尋找文字
     ```
+    dm = DM()
     result = dm.FindStr(0, 0, 500, 500, "example", "ffffff-000000", 0.9)
     print(result)
     ```
 
 4. 截圖
     ```
+    dm = DM()
     dm.Capture(0, 0, 200, 200, "screenshot.png")
     ```
 
 5. 模擬鍵盤操作
     ```
+    dm = DM()
     # 按下 'A' 鍵
     dm.KeyPress(65) 
     ```

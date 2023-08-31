@@ -1,0 +1,3 @@
+dist/*
+build/*
+pydmsoft.egg-info/*

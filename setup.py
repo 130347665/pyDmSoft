@@ -12,6 +12,10 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/130347665/PyDmSoft",
+    install_requires=[
+                    'comtypes',
+                    'pywin32',
+    ],
     packages=setuptools.find_packages(),     
     classifiers=[
         "Programming Language :: Python :: 3",
