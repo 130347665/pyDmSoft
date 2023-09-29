@@ -52,7 +52,16 @@ dm = DM(DmRegPath="path_to_dmreg.dll", DMPath="path_to_dm.dll")
     # 按下 'A' 鍵
     dm.KeyPress(65) 
     ```
-
+6. 部分找圖找色可使用wait_until(等待秒數,間隔)
+   ```
+    try:
+        print(m_dm.Reg('xxxx','xxx'))
+        print(m_dm.FindColor(0,0,100,100,"ffffff",0.9,0).wait_until(5))
+        print(m_dm.FindColorE(0,0,100,100,"ffffff",0.9,0).wait_until(5))
+        print(m_dm.FindMultiColorE(0,0,100,100,"ffffff-000000",0.9,0,0).wait_until(10))
+    except TimeOutException as e:
+        print(e)
+   ```
 ## 注意事項
 請確保大漠的dll檔案和註冊檔案路徑正確。另外，當使用免註冊調用時，需同時提供DmRegPath和DMPath。
 

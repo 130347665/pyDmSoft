@@ -2,6 +2,46 @@ import ctypes
 import os
 from comtypes.client import CreateObject
 import win32com.client
+import time
+
+class TimeOutException(Exception):
+    pass
+class WapperDM:
+    def __init__(self, result, method, failure_indicators, *args, **kwargs):
+        self.method = method
+        self.args = args
+        self.kwargs = kwargs
+        self.initial_result = result
+        self.failure_indicators = failure_indicators
+
+    def is_failure(self, result):
+        if isinstance(result, tuple) and result[0] == self.failure_indicators:
+            return True
+        if isinstance(result, str):
+            return self.failure_indicators in result
+        return False
+
+    def wait_until(self, duration, interval=1):
+        end_time = time.time() + duration
+        while time.time() < end_time:
+            response = self.method(*self.args, **self.kwargs)
+            if not self.is_failure(response):
+                return response
+            time.sleep(interval)
+        raise TimeOutException("等待超時")
+    
+    def __repr__(self):
+        return repr(self.initial_result)
+
+def wapper_decorator(failure_indicators):
+    def decorator(method):
+        def wapper(*args, **kwargs):
+            result = method(*args, **kwargs)
+            return WapperDM(result, method, failure_indicators, *args, **kwargs)
+        return wapper
+    return decorator
+
+
 class DM():
     def __init__(self,DmRegPath=None,DMPath=None) -> None:
         self.dm = None
@@ -134,10 +174,10 @@ class DM():
 
     def SetMinColGap(self, col_gap):
         return self.dm.SetMinColGap(col_gap)
-
+    @wapper_decorator(0)
     def FindColor(self, x1, y1, x2, y2, color, sim, dir):
         return self.dm.FindColor(x1, y1, x2, y2, color, sim, dir)
-
+    @wapper_decorator(0)
     def FindColorEx(self, x1, y1, x2, y2, color, sim, dir):
         return self.dm.FindColorEx(x1, y1, x2, y2, color, sim, dir)
 
@@ -179,7 +219,6 @@ class DM():
 
     def GetClientSize(self, hwnd):
         return self.dm.GetClientSize(hwnd)
-
     def MoveWindow(self, hwnd, x, y):
         return self.dm.MoveWindow(hwnd, x, y)
 
@@ -344,7 +383,7 @@ class DM():
 
     def SetDict(self, index, dict_name):
         return self.dm.SetDict(index, dict_name)
-
+    @wapper_decorator(-1)
     def FindPic(self, x1, y1, x2, y2, pic_name, delta_color, sim, dir):
         return self.dm.FindPic(x1, y1, x2, y2, pic_name, delta_color, sim, dir)
 
@@ -413,10 +452,9 @@ class DM():
 
     def AsmCall(self, hwnd, mode):
         return self.dm.AsmCall(hwnd, mode)
-
+    @wapper_decorator(0)
     def FindMultiColor(self, x1, y1, x2, y2, first_color, offset_color, sim, dir):
         return self.dm.FindMultiColor(x1, y1, x2, y2, first_color, offset_color, sim, dir)
-
     def FindMultiColorEx(self, x1, y1, x2, y2, first_color, offset_color, sim, dir):
         return self.dm.FindMultiColorEx(x1, y1, x2, y2, first_color, offset_color, sim, dir)
 
@@ -443,16 +481,16 @@ class DM():
 
     def Log(self, info):
         return self.dm.Log(info)
-
+    @wapper_decorator("-1|-1|-1")
     def FindStrE(self, x1, y1, x2, y2, str, color, sim):
         return self.dm.FindStrE(x1, y1, x2, y2, str, color, sim)
-
+    @wapper_decorator("-1|-1")
     def FindColorE(self, x1, y1, x2, y2, color, sim, dir):
         return self.dm.FindColorE(x1, y1, x2, y2, color, sim, dir)
 
     def FindPicE(self, x1, y1, x2, y2, pic_name, delta_color, sim, dir):
         return self.dm.FindPicE(x1, y1, x2, y2, pic_name, delta_color, sim, dir)
-
+    @wapper_decorator("-1|-1")
     def FindMultiColorE(self, x1, y1, x2, y2, first_color, offset_color, sim, dir):
         return self.dm.FindMultiColorE(x1, y1, x2, y2, first_color, offset_color, sim, dir)
 
@@ -506,7 +544,7 @@ class DM():
 
     def BindWindow(self, hwnd, display, mouse, keypad, mode):
         return self.dm.BindWindow(hwnd, display, mouse, keypad, mode)
-
+    @wapper_decorator(0)
     def FindWindow(self, class_name, title_name):
         return self.dm.FindWindow(class_name, title_name)
 
@@ -551,7 +589,7 @@ class DM():
 
     def FetchWord(self, x1, y1, x2, y2, color, word):
         return self.dm.FetchWord(x1, y1, x2, y2, color, word)
-
+    @wapper_decorator(0)
     def CaptureJpg(self, x1, y1, x2, y2, file, quality):
         return self.dm.CaptureJpg(x1, y1, x2, y2, file, quality)
 
@@ -584,13 +622,13 @@ class DM():
 
     def GetID(self):
         return self.dm.GetID()
-
+    @wapper_decorator(0)
     def CapturePng(self, x1, y1, x2, y2, file):
         return self.dm.CapturePng(x1, y1, x2, y2, file)
-
+    @wapper_decorator(0)
     def CaptureGif(self, x1, y1, x2, y2, file, delay, time):
         return self.dm.CaptureGif(x1, y1, x2, y2, file, delay, time)
-
+    @wapper_decorator(0)
     def ImageToBmp(self, pic_name, bmp_name):
         return self.dm.ImageToBmp(pic_name, bmp_name)
 
@@ -1034,10 +1072,9 @@ class DM():
 
     def Delays(self, min_s, max_s):
         return self.dm.Delays(min_s, max_s)
-
+    @wapper_decorator(0)
     def FindColorBlock(self, x1, y1, x2, y2, color, sim, count, width, height):
         return self.dm.FindColorBlock(x1, y1, x2, y2, color, sim, count, width, height)
-
     def FindColorBlockEx(self, x1, y1, x2, y2, color, sim, count, width, height):
         return self.dm.FindColorBlockEx(x1, y1, x2, y2, color, sim, count, width, height)
 
@@ -1270,11 +1307,17 @@ class DM():
         return self.dm.SetInputDm(input_dm, rx, ry)
 
         
-        
+
+
 
 if __name__ == "__main__":
     m_dm = DM()
-    print(m_dm.Reg('xxxx','xxx'))
-        
+    try:
+        print(m_dm.Reg('xxxx','xxx'))
+        print(m_dm.FindColor(0,0,100,100,"ffffff",0.9,0).wait_until(5))
+        print(m_dm.FindColorE(0,0,100,100,"ffffff",0.9,0).wait_until(5))
+        print(m_dm.FindMultiColorE(0,0,100,100,"ffffff-000000",0.9,0,0).wait_until(10))
+    except TimeOutException as e:
+        print(e)
     
     
